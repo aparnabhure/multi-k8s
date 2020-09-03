@@ -1,0 +1,15 @@
+#install GCP SDK and CLI using docker
+sudo: required
+services:
+    - docker
+before_install:
+    # result of the comand > travis encrypt-file sample-service-account.json -r aparnabhure/multi-k8s
+    - openssl aes-256-cbc -K $encrypted_23ec891256ed_key -iv $encrypted_23ec891256ed_iv -in sample-service-account.json.enc -out sample-service-account.json -d
+    # download sdk
+    - curl https://sdk.cloud.google.com | bash > /dev/null;
+    # setting up in local env
+    - source $HOME/google-cloud-sdk/path.bash.inc
+    # install kubctl from gcp
+    - gcloud components update kubectl
+    # authenticate
+    - gcloud auth activate-service-account --key-file service.account.json
