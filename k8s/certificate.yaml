@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+    # use your purchased domain nameand append -tls
+    name: k8s-multi-com-tls
+spec:
+    # Use your purchased domain name
+    secretName: k8s-multi-com
+    issuerRef:
+        name: letsencrypt-prod
+        kind: ClusterIssuer
+    # Use your actual purchased domain name    
+    commonName: k8s-multi.com
+    dnsNames:
+        - k8s-multi.com
+        - www.k8s-multi.com
+    acme:
+        config:
+            - http01:
+                ingressClass: nginx
+              domains:
+                - k8s-multi.com
+                - www.k8s-multi.com        
