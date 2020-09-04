@@ -17,7 +17,7 @@ before_install:
     # install kubctl from gcp
     - gcloud components update kubectl
     # authenticate
-    - gcloud auth activate-service-account --key-file sample.service.account.json
+    - gcloud auth activate-service-account --key-file sample-service-account.json
     # set your project ID from GCP projects list
     - gcloud config set project my-gcp-project-id
     # Set compute zone, it islisted with the k8s cluster, same as AWS reason
