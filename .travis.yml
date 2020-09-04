@@ -2,9 +2,14 @@
 sudo: required
 services:
     - docker
+env:
+    global:
+        - SHA=$(git rev-parse HEAD)
+        # To avoid user inputs 
+        - CLOUDSDK_CORE_DISABLE_PROMPTS=1    
 before_install:
     # result of the comand > travis encrypt-file sample-service-account.json -r aparnabhure/multi-k8s
-    - openssl aes-256-cbc -K $encrypted_23ec891256ed_key -iv $encrypted_23ec891256ed_iv -in sample-service-account.json.enc -out sample-service-account.json -d
+    - openssl aes-256-cbc -K $encrypted_5e22900f4910_key -iv $encrypted_5e22900f4910_iv -in sample-service-account.json.enc -out /app/sample-service-account.json -d
     # download sdk
     - curl https://sdk.cloud.google.com | bash > /dev/null;
     # setting up in local env
@@ -13,3 +18,24 @@ before_install:
     - gcloud components update kubectl
     # authenticate
     - gcloud auth activate-service-account --key-file service.account.json
+    # set your project ID from GCP projects list
+    - gcloud config set project my-gcp-project-id
+    # Set compute zone, it islisted with the k8s cluster, same as AWS reason
+    - gcloud config set compute/zone ap-south1-a
+    # Set cluster name which youhave created over GCPwithin the project id
+    - gcloud container clusters get-credentials multi-cluster
+    # login to docker env variables are done in travis pipeline
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    # Build docker image
+    - docker build -t aparnabhure/docker-react -f ./client/Dockerfile.dev ./client
+
+
+# test docker script
+script:
+    - docker run -e CI=true aparnabhure/docker-react npm test
+
+deploy:
+    provider: script
+    script: bash ./deploy.sh
+    on:
+        branch: master
